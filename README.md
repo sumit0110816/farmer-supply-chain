@@ -33,7 +33,7 @@ farm-produce-supply-chain/
  ├── styles/
  └── scripts/
 
-### 🔜 Future Enhancements
+## 🔜 Future Enhancements
 
 Payment Gateway Integration
 
@@ -43,7 +43,7 @@ Real-time Delivery Tracking
 
 Mobile App Version
 
-### 🤝 Contribution Guidelines
+## 🤝 Contribution Guidelines
 
 Fork the repository
 
@@ -53,7 +53,7 @@ Commit changes with proper message
 
 Push and create a pull request
 
-# 📌 Author
+## 📌 Author
 
 👤 Sumit Margankop
 💼 GitHub: https://github.com/sumit0110816
