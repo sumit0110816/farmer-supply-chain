@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farm Supply Chain - From Farm to Fork</title>
+<style>
+/* Reset and Base Styles */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Poppins', sans-serif; background: #8f7607; color: #003300; overflow-x: hidden; }
+
+/* Header Navigation */
+.top-header { position: fixed; top: 0; left: 0; right: 0; background: #f4ebb6 !important; backdrop-filter: blur(10px); box-shadow: 0 2px 20px rgba(0,0,0,0.1); z-index: 1000; padding: 15px 0; transition: all 0.3s ease; }
+.top-header.scrolled { background: #efdd75 !important; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15)0; }
+.header-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+.logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 700; color: #00b36b; text-decoration: none; }
+.logo-icon { font-size: 2rem; }
+.nav-links { display: flex; gap: 30px; align-items: center; }
+.nav-links a { color: #003300; text-decoration: none; font-weight: 500; transition: color 0.3s ease; position: relative; }
+.nav-links a:hover { color: #00b36b; }
+.nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: #00b36b; transition: width 0.3s ease; }
+.nav-links a:hover::after { width: 100%; }
+.header-btn { background: linear-gradient(90deg, #00cc66, #00b36b); color: white; padding: 10px 25px; border-radius: 25px; font-weight: 600; transition: all 0.3s ease; }
+.header-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,179,107,0.3); }
+
+/* Footer */
+.footer { background: linear-gradient(135deg, #414040 0%, #000000 100%); color: white; padding: 60px 20px 20px; }
+.footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; margin-bottom: 40px; }
+.footer-section h3 { font-size: 1.5rem; margin-bottom: 20px; color: #00ff88; }
+.footer-section p, .footer-section a { color: rgba(255,255,255,0.8); text-decoration: none; display: block; margin-bottom: 10px; transition: color 0.3s ease; }
+.footer-section a:hover { color: #00ff88; padding-left: 5px; }
+.social-links { display: flex; gap: 15px; margin-top: 15px; }
+.social-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255,255,255,0.1); border-radius: 50%; font-size: 1.2rem; transition: all 0.3s ease; }
+.social-icon:hover { background: #00ff88; color: #003300; transform: translateY(-3px); }
+.footer-bottom { text-align: center; padding-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+
+/* Hero Section */
+.hero { position: relative; height: 100vh; background: linear-gradient(135deg, #00b36b 0%, #007a33 100%); display: flex; align-items: center; justify-content: center; text-align: center; color: white; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom; background-size: cover; animation: wave 15s ease-in-out infinite; }
+@keyframes wave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+.hero-content { position: relative; z-index: 2; max-width: 900px; padding: 20px; animation: fadeInUp 1s ease-out; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+.hero h1 { font-size: 3rem; font-weight: 700; margin-bottom: 20px; text-shadow: 2px 4px 8px rgba(0,0,0,0.3); animation: slideInLeft 1s ease-out; }
+@keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
+.hero p { font-size: 1.2rem; margin-bottom: 30px; opacity: 0.95; animation: slideInRight 1s ease-out 0.3s both; }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+.hero-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+.btn { padding: 15px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; cursor: pointer; border: none; display: inline-block; }
+.btn-primary { background: white; color: #00b36b; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+.btn-primary:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.3); }
+.btn-outline { background: transparent; color: white; border: 3px solid white; }
+.btn-outline:hover { background: white; color: #00b36b; }
+/* Floating Icons */
+.float-icon { position: absolute; font-size: 3rem; animation: float 6s ease-in-out infinite; opacity: 0.3; }
+.float-icon:nth-child(1) { top: 15%; left: 10%; animation-delay: 0s; }
+.float-icon:nth-child(2) { top: 60%; left: 15%; animation-delay: 2s; }
+.float-icon:nth-child(3) { top: 25%; right: 12%; animation-delay: 1s; }
+.float-icon:nth-child(4) { bottom: 20%; right: 18%; animation-delay: 3s; }
+@keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(10deg); } }
+
+/* Stats Section */
+.stats { background: linear-gradient(135deg, #f1fff5 0%, #d4fada 100%); padding: 80px 20px; text-align: center; }
+.stats-container { display: flex; justify-content: space-around; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; gap: 40px; }
+.stat-card { flex: 1; min-width: 200px; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+.stat-card:hover { transform: translateY(-10px) scale(1.05); }
+.stat-number { font-size: 3.5rem; font-weight: 700; color: #00b36b; margin-bottom: 10px; }
+.stat-label { font-size: 1.2rem; color: #555; font-weight: 500; }
+
+/* Features Section */
+.features { padding: 100px 20px; background: white; }
+.features h2 { text-align: center; font-size: 3rem; color: #007033; margin-bottom: 60px; }
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
+.feature-card { background: linear-gradient(135deg, #ffffff 0%, #f9fff9 100%); padding: 40px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); transition: all 0.3s ease; border: 2px solid transparent; }
+.feature-card:hover { border-color: #00b36b; transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0,179,107,0.2); }
+.feature-icon { font-size: 4rem; margin-bottom: 20px; }
+.feature-card h3 { font-size: 1.8rem; color: #007033; margin-bottom: 15px; }
+.feature-card p { font-size: 1.1rem; color: #555; line-height: 1.6; }
+
+/* CTA Section */
+.cta { background: linear-gradient(135deg, #00b36b 0%, #00994d 100%); padding: 100px 20px; text-align: center; color: white; position: relative; overflow: hidden; }
+.cta::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 10%); background-size: 50px 50px; animation: moveBackground 20s linear infinite; }
+@keyframes moveBackground { 0% { transform: translate(0, 0); } 100% { transform: translate(50px, 50px); } }
+.cta-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+.cta h2 { font-size: 3rem; margin-bottom: 20px; }
+.cta p { font-size: 1.3rem; margin-bottom: 40px; opacity: 0.95; }
+
+/* Dashboard Preview Section */
+.dashboard-preview { padding: 100px 20px; background: #f8fff9; text-align: center; }
+.dashboard-preview h2 { font-size: 3rem; color: #007033; margin-bottom: 60px; }
+.role-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; }
+.role-card { background: white; padding: 40px 30px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: all 0.3s ease; cursor: pointer; text-decoration: none; color: inherit; display: block; }
+.role-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,179,107,0.3); }
+.role-icon { font-size: 5rem; margin-bottom: 20px; }
+.role-card h3 { font-size: 1.8rem; color: #007033; margin-bottom: 15px; }
+.role-card p { font-size: 1rem; color: #666; }
+
+/* Scroll Indicator */
+.scroll-indicator { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); animation: bounce 2s infinite; z-index: 3; }
+@keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); } 40% { transform: translateX(-50%) translateY(-15px); } 60% { transform: translateX(-50%) translateY(-8px); } }
+.scroll-indicator span { display: block; width: 30px; height: 50px; border: 3px solid white; border-radius: 25px; position: relative; }
+.scroll-indicator span::before { content: ''; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background: white; border-radius: 50%; animation: scroll 2s infinite; }
+@keyframes scroll { 0% { top: 10px; opacity: 1; } 100% { top: 30px; opacity: 0; } }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2rem; }
+  .hero p { font-size: 1rem; }
+  .features h2, .cta h2, .dashboard-preview h2 { font-size: 2rem; }
+  .stat-number { font-size: 2.5rem; }
+  .nav-links { display: none; }
+  .footer-container { grid-template-columns: 1fr; }
+}
+
+/* --- ROLE SELECTOR MODAL STYLES (New/Modified) --- */
+.modal-role-selector {
+  display: none; /* Controlled by JS */
+  position: fixed;
+  z-index: 2100;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.28);
+  backdrop-filter: blur(2px);
+  justify-content: center; align-items: center;
+}
+
+.role-modal-content {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 60px rgba(0,179,107,0.13);
+  padding: 32px 32px 22px 32px;
+  width: 95%;
+  max-width: 415px;
+  text-align: center;
+  position: relative;
+}
+
+.role-close {
+  position: absolute;
+  top: 13px; right: 18px;
+  font-size: 26px;
+  color: #00b36b;
+  font-weight: bold;
+  cursor: pointer;
+  background: #f7fff9;
+  width: 32px; height: 32px;
+  line-height: 32px;
+  border-radius: 100%;
+  transition: background 0.2s, color 0.2s;
+}
+.role-close:hover { background: #00b36b; color: #fff; }
+
+.role-modal-content h2 {
+  font-size: 1.5rem;
+  color: #00b36b;
+  margin-bottom: 8px;
+  margin-top: 12px;
+}
+.role-desc {
+  color: #333;
+  opacity: 0.93;
+  margin-bottom: 25px;
+}
+
+.role-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 18px;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+.role-card-select {
+  background: #f7fff9;
+  border: 2px solid #e2f8ea;
+  border-radius: 14px;
+  padding: 20px 8px 12px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 110px;
+  transition: border-color 0.2s, box-shadow 0.18s, background 0.15s;
+  box-shadow: 0 2px 15px #00b36b07;
+  position: relative;
+  font-size: 1.09rem;
+}
+.role-card-select:hover,
+.role-card-select:focus {
+  border-color: #00b36b;
+  background: linear-gradient(120deg, #d8fff2 60%, #fffbe8 100%);
+  box-shadow: 0 6px 28px #00b36b0c;
+}
+.role-card-select .role-label {
+  font-weight: 600;
+  margin-top: 10px;
+  color: #00b36b;
+  font-size: 1.09rem;
+}
+.role-emoji {
+  margin-bottom: 0;
+  font-size: 3rem; /* Added size for better look */
+}
+.role-footer-note {
+  color: #999;
+  font-size: 0.92rem;
+  margin-top: 22px;
+}
+@media (max-width: 499px) {
+  .role-modal-content { padding: 16px 3vw 10px 3vw; }
+  .role-card-grid { gap: 12px 6px; }
+  .role-card-select { padding: 10px 2px 8px 2px; min-width: 70px; }
+}
+
+/* --- SIGN UP/IN MODAL STYLES (Retained/Refined) --- */
+.signup-modal {
+   display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.08);
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(6px);
+}
+.modal-box {
+   display: flex;
+  flex-wrap: wrap;
+  min-width: 320px;
+  max-width: 800px;
+  width: 90%; min-height: 380px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 8px 80px rgba(0,0,0,0.2);
+  position: relative;} 
+.modal-left {
+  width: 40%; background: linear-gradient(135deg, #00b36b 0%, #00ffbb 100%);
+  color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  padding: 36px 20px 36px 20px;
+  transition: transform 0.6s ease-in-out; /* For sliding effect */
+}
+.modal-left.sign-in-active {
+  transform: translateX(100%);
+}
+.modal-left h2 {
+  font-size: 2rem; margin-bottom: 0.4em;
+}
+.modal-left p {
+  font-size: 1.1rem; opacity: 0.90;
+}
+.ghost-btn {
+  margin-top: 32px;
+  background: transparent; color: #fff; font-weight: 600; font-size: 1rem;
+  border: 2px solid #fff; border-radius: 25px; padding: 12px 44px; cursor: pointer; transition: background .22s, color .22s;
+}
+.ghost-btn:hover {
+  background: #fff; color: #00b36b;
+}
+.logo-img {
+  width: 54px; margin-bottom: 14px;
+}
+.modal-right {
+  width: 60%; background: #fff; padding: 46px 38px 38px 38px;
+  display: flex; flex-direction: column; align-items: center; position: relative;
+  transition: transform 0.6s ease-in-out; /* For sliding effect */
+}
+.modal-right.sign-in-active {
+  transform: translateX(-66.66%); /* (40/60) * 100% */
+}
+.modal-content-wrapper {
+  width: 200%; /* For both sign up and sign in forms */
+  display: flex;
+  transition: transform 0.6s ease-in-out;
+}
+.modal-right.sign-in-active .modal-content-wrapper {
+  transform: translateX(-50%);
+}
+.form-container {
+   width: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 38px;
+}
+/* Re-applying styles for the 'Sign Up' content in form-container */
+.form-container h2 {
+  font-size: 2rem; font-weight: 700; color: #00b36b; margin-bottom: 14px;
+}
+.form-container.active {
+  display: flex;
+}
+.social-icons {
+  display: flex; gap: 12px; margin-bottom: 10px;
+}
+.social-icons button {
+  width: 44px; height: 44px; border-radius: 100%; border: none; background: #eef8f1; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: box-shadow 0.2s;
+}
+.social-icons button:hover {
+  box-shadow: 0 2px 12px #00b36b44;
+}
+.social-icons img { width: 20px; }
+.subtitle {
+  color: #909090; font-size: 0.96rem; margin: 10px 0 18px 0; text-align: center;
+}
+.modal-form { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.input-box {
+  width: 100%; display: flex; align-items: center; background: #f5faf7;
+  margin-bottom: 18px; border-radius: 10px; border: 1px solid #e0f0e9;
+  padding: 0 8px;
+}
+.input-box .icon {
+  font-size: 1.2rem; color: #00b36b; margin-right: 6px;
+}
+.input-box input {
+  width: 100%; background: none; border: none; outline: none;
+  padding: 15px 8px; font-size: 1rem; font-family: inherit; color: #003300;
+}
+.main-btn {
+  margin-top: 10px; background: linear-gradient(90deg, #00b36b, #00ffbb);
+  color: #fff; border: none; border-radius: 24px; padding: 13px 0; width: 100%; font-weight: 700;
+  letter-spacing: 1px; font-size: 1.09rem; box-shadow: 0 2px 18px #00b36b33; cursor: pointer; transition: background 0.15s, box-shadow 0.2s;
+}
+.main-btn:hover {
+  background: linear-gradient(90deg, #00ffbb, #00b36b);
+  box-shadow: 0 3px 22px #00ffbb44;
+}
+.forgot-password {
+  font-size: 0.9rem;
+  color: #00b36b;
+  margin: 10px 0 20px 0;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.forgot-password:hover {
+  color: #00ffbb;
+}
+.close {
+  color: #aaa; font-size: 26px; font-weight: bold; position: absolute; top: 16px; right: 26px; cursor: pointer; transition: color 0.3s;
+}
+.close:hover { color: #00b36b; }
+@media (max-width: 699px) {
+  .modal-box { flex-direction: column; min-width: 220px; }
+  .modal-left, .modal-right { width: 100%; min-width: 0 !important; }
+  .modal-left { border-radius: 18px 18px 0 0; transform: none !important; }
+  .modal-right { border-radius: 0 0 18px 18px; transform: none !important; }
+  .modal-content-wrapper { transform: none !important; flex-direction: column; }
+  .form-container { width: 100%; padding: 0 20px; }
+  .modal-right.sign-in-active .modal-content-wrapper { transform: none !important; }
+}
+
+</style>
+</head>
+<body>
+    <header class="top-header">
+    <div class="header-container">
+      <a href="#" class="logo">
+        <span class="logo-icon">🌾</span>
+        <span>FarmChain</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="#" id="signInBtn">Sign In</a>
+        <a href="#dashboard" class="header-btn">Get Started</a>
+      </nav>
+    </div>
+  </header>
+
+    <section class="hero">
+    <div class="float-icon">🌾</div>
+    <div class="float-icon">🚜</div>
+    <div class="float-icon">🌽</div>
+    <div class="float-icon">🥕</div>
+    <div class="hero-content">
+      <h1>🌾 Farm Supply Chain</h1>
+      <p>Transparent. Traceable. Trustworthy.<br>From Farm to Fork, Track Every Step.</p>
+      <div class="hero-buttons">
+        <a href="#dashboard" class="btn btn-primary">Get Started</a>
+        <a href="#features" class="btn btn-outline">Learn More</a>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <span></span>
+    </div>
+  </section>
+
+    <section class="stats">
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-number" data-target="100">0</div>
+        <div class="stat-label">Batches Tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="50">0</div>
+        <div class="stat-label">Farmers Connected</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="250">0</div>
+        <div class="stat-label">Distributors</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" data-target="100">0</div>
+        <div class="stat-label">Retailers</div>
+      </div>
+    </div>
+  </section>
+
+    <section id="features" class="features">
+    <h2>Why Choose Our Platform?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3>Blockchain Powered</h3>
+        <p>Every transaction is secured with cryptographic hashing, ensuring data integrity and immutability across the entire supply chain.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>QR Code Tracking</h3>
+        <p>Scan QR codes to instantly access complete product history, from harvest date to current location, building consumer trust.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Real-Time Updates</h3>
+        <p>Track batch status in real-time as it moves through farmers, distributors, and retailers with instant notifications.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡</div>
+        <h3>Secure & Verified</h3>
+        <p>Multi-stakeholder verification ensures authenticity at every stage, reducing fraud and enhancing accountability.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Analytics Dashboard</h3>
+        <p>Comprehensive insights and visualizations help stakeholders make data-driven decisions for better efficiency.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌍</div>
+        <h3>Sustainable Practices</h3>
+        <p>Promote eco-friendly farming by providing transparency in agricultural practices and reducing waste throughout the chain.</p>
+      </div>
+    </div>
+  </section>
+
+    <section id="dashboard" class="dashboard-preview">
+    <h2>Access Your Dashboard</h2>
+    <div class="role-cards">
+    
+</a>
+<a href="#" id="dashboardFarmerBtn" class="role-card">
+  <div class="role-icon">👨‍🌾</div>
+  <h3>Farmer</h3>
+  <p>Create and manage batches from harvest</p>
+</a>
+
+
+      <a href="#" id="dashboardDistributorBtn" class="role-card">
+  <div class="role-icon">🚚</div>
+  <h3>Distributor</h3>
+  <p>Update batch location and status</p>
+</a>
+<a href="#" id="dashboardRetailerBtn" class="role-card">
+  <div class="role-icon">🛒</div>
+  <h3>Retailer</h3>
+  <p>Verify and approve product batches</p>
+</a>
+<a href="#" id="dashboardConsumerBtn" class="role-card">
+  <div class="role-icon">👥</div>
+  <h3>Consumer</h3>
+  <p>Scan QR and view complete timeline</p>
+</a>
+    </div>
+  </section>
+
+    <section class="cta">
+    <div class="cta-content">
+      <h2>Ready to Transform Your Supply Chain?</h2>
+      <p>Join thousands of farmers, distributors, and retailers building a transparent agricultural ecosystem.</p>
+      <a href="#dashboard" class="btn btn-primary" style="background: white; color: #00b36b;">Start Tracking Now</a>
+    </div>
+  </section>
+
+    <footer class="footer" id="about">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h3>🌾 FarmChain</h3>
+        <p>Transforming agriculture through blockchain-powered supply chain transparency. From farm to fork, we ensure trust at every step.</p>
+        <div class="social-links">
+          <a href="#" class="social-icon">📘</a>
+          <a href="#" class="social-icon">🐦</a>
+          <a href="#" class="social-icon">📷</a>
+          <a href="#" class="social-icon">💼</a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <a href="#features">Features</a>
+        <a href="#dashboard">Dashboard Access</a>
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <div class="footer-section">
+        <h3>Resources</h3>
+        <a href="#">Documentation</a>
+        <a href="#">API Reference</a>
+        <a href="#">User Guides</a>
+        <a href="#">FAQs</a>
+        <a href="#">Blog</a>
+        <a href="#">Case Studies</a>
+      </div>
+      <div class="footer-section" id="contact">
+        <h3>Contact Us</h3>
+        <p>📧 saishmalalikar5@gmail.com</p>
+        <p>📞 +91 7795868592</p>
+        <p>📍 Agricultural Innovation Hub<br>Belgaum, India</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 FarmChain. All rights reserved. Built with 💚 for sustainable agriculture.</p>
+    </div>
+  </footer>
+
+
+    <div id="roleSelectorModal" class="modal-role-selector">
+    <div class="role-modal-content">
+      <span class="role-close" id="closeRoleModal">&times;</span>
+      <h2>Select Your Role</h2>
+      <p class="role-desc">Please identify your role in the supply chain to continue.</p>
+
+      <div class="role-card-grid">
+                <div class="role-card-select" data-role="farmer">
+          <span class="role-emoji">👨‍🌾</span>
+          <span class="role-label">Farmer</span>
+        </div>
+        <div class="role-card-select" data-role="distributor">
+          <span class="role-emoji">🚚</span>
+          <span class="role-label">Distributor</span>
+        </div>
+        <div class="role-card-select" data-role="retailer">
+          <span class="role-emoji">🛒</span>
+          <span class="role-label">Retailer</span>
+        </div>
+        <div class="role-card-select" data-role="consumer">
+          <span class="role-emoji">👥</span>
+          <span class="role-label">Consumer</span>
+        </div>
+      </div>
+
+      <p class="role-footer-note">Your role determines your dashboard access and permissions.</p>
+    </div>
+  </div>
+
+
+    <div id="signUpInModal" class="signup-modal">
+  <div class="modal-box">
+    <div class="modal-left" id="modalLeft">
+      
+      <h2 id="leftTitle">Welcome Back!</h2>
+      <p id="leftSubtitle">To keep connected with us please login with your personal info</p>
+      <button class="ghost-btn" id="toggleFormBtn">SIGN IN</button>
+    </div>
+    <div class="modal-right" id="modalRight">
+      <span class="close" id="closeSignUpInModal">&times;</span>
+      <div class="form-container active" id="signUpFormContainer">
+        <h2>Create Your <span id="currentRoleSignUp"></span> Account</h2>
+        
+        <span class="subtitle">or use your email for registration:</span>
+        <form id="signInForm" class="modal-form">
+          <div class="input-box">
+            <span class="icon">@</span>
+            <input type="text" placeholder="Name" required>
+          </div>
+          <div class="input-box">
+            <span class="icon">&#9993;</span>
+            <input type="email" placeholder="Email" required>
+          </div>
+          <div class="input-box">
+            <span class="icon">&#128274;</span>
+            <input type="password" placeholder="Password" required>
+          </div>
+          <button type="submit" class="main-btn">SIGN UP</button>
+        </form>
+      </div>
+      <div class="form-container" id="signInFormContainer">
+        <h2>Sign In as <span id="currentRoleSignIn"></span></h2>
+        
+        <span class="subtitle">or use your email account:</span>
+        <form class="modal-form" id="signInForm">
+
+          <div class="input-box">
+            <span class="icon">&#9993;</span>
+            <input type="email" placeholder="Email" required>
+          </div>
+          <div class="input-box">
+            <span class="icon">&#128274;</span>
+            <input type="password" placeholder="Password" required>
+          </div>
+          <span class="forgot-password">Forgot your password?</span>
+          <button type="submit" class="main-btn">SIGN IN</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <script>
+let pendingDashboardRedirect = null;
+
+document.getElementById('dashboardFarmerBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+  pendingDashboardRedirect = "farmer-dashboard.html";
+  document.getElementById('signInBtn').click();
+});
+
+
+
+  const signInBtn = document.getElementById('signInBtn');
+const roleSelectorModal = document.getElementById('roleSelectorModal');
+const closeRoleModal = document.getElementById('closeRoleModal');
+const roleCards = document.querySelectorAll('.role-card-select');
+const signUpInModal = document.getElementById('signUpInModal');
+const closeSignUpInModal = document.getElementById('closeSignUpInModal');
+const toggleFormBtn = document.getElementById('toggleFormBtn');
+const leftTitle = document.getElementById('leftTitle');
+const leftSubtitle = document.getElementById('leftSubtitle');
+const currentRoleSignUp = document.getElementById('currentRoleSignUp');
+const currentRoleSignIn = document.getElementById('currentRoleSignIn');
+const signUpFormContainer = document.getElementById('signUpFormContainer');
+const signInFormContainer = document.getElementById('signInFormContainer');
+let currentMode = 'signUp';
+
+document.getElementById('dashboardFarmerBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+  pendingDashboardRedirect = "farmer-dashboard.html";
+  document.getElementById('signInBtn').click();
+});
+document.getElementById('dashboardDistributorBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+  pendingDashboardRedirect = "distributor-dashboard.html";
+  document.getElementById('signInBtn').click();
+});
+document.getElementById('dashboardRetailerBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+  pendingDashboardRedirect = "retailer-dashboard.html";
+  document.getElementById('signInBtn').click();
+});
+document.getElementById('dashboardConsumerBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+  pendingDashboardRedirect = "consumer-dashboard.html";
+  document.getElementById('signInBtn').click();
+});
+ 
+function showSignUpInModal(role) {
+  const capitalizedRole = role.charAt(0).toUpperCase() + role.slice(1);
+  currentRoleSignUp.textContent = capitalizedRole;
+  currentRoleSignIn.textContent = capitalizedRole;
+  signUpFormContainer.classList.add('active');
+  signInFormContainer.classList.remove('active');
+  leftTitle.textContent = "Welcome Back!";
+  leftSubtitle.textContent = "To keep connected with us please login with your personal info";
+  toggleFormBtn.textContent = "SIGN IN";
+  currentMode = 'signUp';
+  roleSelectorModal.style.display = 'none';
+  signUpInModal.style.display = 'flex';
+}
+function toggleFormState() {
+  if (currentMode === 'signUp') {
+    signUpFormContainer.classList.remove('active');
+    signInFormContainer.classList.add('active');
+    leftTitle.textContent = "Hello Friend!";
+    leftSubtitle.textContent = "Enter your personal details and start your journey with us.";
+    toggleFormBtn.textContent = "SIGN UP";
+    currentMode = 'signIn';
+  } else {
+    signUpFormContainer.classList.add('active');
+    signInFormContainer.classList.remove('active');
+    leftTitle.textContent = "Welcome Back!";
+    leftSubtitle.textContent = "To keep connected with us please login with your personal info";
+    toggleFormBtn.textContent = "SIGN IN";
+    currentMode = 'signUp';
+  }
+}
+signInBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+  roleSelectorModal.style.display = 'flex';
+});
+closeRoleModal.addEventListener('click', function() {
+  roleSelectorModal.style.display = 'none';
+});
+roleCards.forEach(card => {
+  card.addEventListener('click', function() {
+    const role = this.getAttribute('data-role');
+    showSignUpInModal(role);
+  });
+});
+closeSignUpInModal.addEventListener('click', function() {
+  signUpInModal.style.display = 'none';
+});
+toggleFormBtn.addEventListener('click', function() {
+  toggleFormState();
+});
+window.addEventListener('click', function(event) {
+  if (event.target === roleSelectorModal) {
+    roleSelectorModal.style.display = 'none';
+  } else if (event.target === signUpInModal) {
+    signUpInModal.style.display = 'none';
+  }
+});
+document.getElementById('signInForm').addEventListener('submit', function(ev) {
+  ev.preventDefault();
+
+  // Place your existing login authentication logic here
+  // (If login is successful):
+
+  if (pendingDashboardRedirect) {
+    window.location.href = pendingDashboardRedirect;
+    pendingDashboardRedirect = null;
+  } else {
+    signUpInModal.style.display = 'none'; // fallback: close modal
+  }
+});
+
+
+
+    // --- EXISTING COUNTER AND SCROLL LOGIC ---
+    // Header Scroll Effect
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('.top-header');
+      if (window.scrollY > 100) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+
+    // Counter Animation
+    const counters = document.querySelectorAll('.stat-number');
+    const speed = 200;
+    let animated = false;
+
+    const animateCounters = () => {
+      if (animated) return;
+      counters.forEach(counter => {
+        const target = +counter.getAttribute('data-target');
+        const increment = target / speed;
+        let count = 0;
+        const updateCount = () => {
+          count += increment;
+          if (count < target) {
+            counter.innerText = Math.ceil(count);
+            setTimeout(updateCount, 10);
+          } else {
+            counter.innerText = target + '+';
+          }
+        };
+        updateCount();
+      });
+      animated = true;
+    };
+
+    // Intersection Observer for stats
+    const statsSection = document.querySelector('.stats');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+        }
+      });
+    }, { threshold: 0.5 });
+    observer.observe(statsSection);
+
+    // Smooth Scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    document.getElementById('signInForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  // For now, assume sign in successful
+  if (pendingDashboardRedirect) {
+    window.location.href = pendingDashboardRedirect;
+    pendingDashboardRedirect = null;
+  } else {
+    // Fallback: just hide the sign-in modal
+    document.getElementById('signUpInModal').style.display = 'none';
+  }
+});
+
+  </script>
+
+</body>
+</html>

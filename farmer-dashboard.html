@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farmer Dashboard - Farm Supply Chain</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #d4fada, #eaffea); color: #003300; min-height: 100vh; }
+
+/* Header */
+.dashboard-header { background: linear-gradient(90deg, #00b36b, #00994d); color: white; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.dashboard-header h1 { font-size: 1.8rem; }
+.back-btn { background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; transition: background 0.3s ease; }
+.back-btn:hover { background: rgba(255,255,255,0.3); }
+
+/* Container */
+.container { max-width: 900px; margin: 40px auto; padding: 20px; }
+
+/* Card */
+.card { background: #ffffffee; border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); padding: 30px; transition: transform 0.3s ease, box-shadow 0.3s ease; animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+.card h2 { font-size: 24px; margin-bottom: 20px; color: #007033; }
+
+/* Form Elements */
+input, button { padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #00b36b; width: 100%; font-size: 14px; font-family: 'Poppins', sans-serif; }
+button { background: linear-gradient(90deg, #00cc66, #00b36b); color: white; border: none; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+button:hover { background: linear-gradient(90deg, #00b36b, #00994d); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,179,107,0.3); }
+
+/* Batch List */
+#batchList { margin-top: 20px; font-size: 14px; max-height: 200px; overflow-y: auto; background: #f1fff5; padding: 15px; border-radius: 8px; border: 1px solid #00b36b; }
+.batch-item { background: white; padding: 10px; margin: 8px 0; border-radius: 6px; border-left: 4px solid #00cc66; }
+
+.next-btn {
+  background: linear-gradient(90deg, #00cc66, #00b36b);
+  color: white;
+  padding: 12px 38px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.07rem;
+  box-shadow: 0 2px 9px rgba(0,179,107,0.10);
+  transition: background 0.2s, transform 0.2s;
+  display: inline-block;
+}
+.next-btn:hover {
+  background: linear-gradient(90deg, #00b36b, #00994d);
+  transform: translateY(-2px);
+}
+
+</style>
+</head>
+<body>
+
+<header class="dashboard-header">
+  <h1>👨‍🌾 Farmer Dashboard</h1>
+  <a href="main.html" class="back-btn">← Back to Home</a>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Add New Batch</h2>
+    <form id="farmerForm">
+      <input name="farmer_name" placeholder="Farmer Name" required>
+      <input name="crop_name" placeholder="Crop Name (e.g., Wheat, Rice, Tomato)" required>
+      <input type="date" name="harvest_date" required>
+      <input name="Location" placeholder="Location" required>
+      <input name="Farm Size" placeholder="Farm Size" required>
+      <input name="Farming type" placeholder="Farming type (eg:- organic , traditional ,hybrid )" required>
+      
+      <button type="submit">✅ Add Batch</button>
+    </form>
+    <div id="batchList"><strong>📦 Created Batches:</strong> None yet. Start by adding your first batch!</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// Load batches from localStorage
+let batches = JSON.parse(localStorage.getItem('batches')) || {};
+
+function updateBatchList() {
+  let listDiv = document.getElementById('batchList');
+  const keys = Object.keys(batches);
+  
+  if (keys.length === 0) {
+    listDiv.innerHTML = "<strong>📦 Created Batches:</strong> None yet. Start by adding your first batch!";
+  } else {
+    listDiv.innerHTML = "<strong>📦 Created Batches:</strong>";
+    keys.forEach(key => {
+      const batch = batches[key][0];
+      listDiv.innerHTML += <div class="batch-item"><strong>${key}</strong> - ${batch.crop} by ${batch.farmer} (${batch.harvest_date})</div>;
+    });
+  }
+}
+
+function addStage(batch_id, stage, data) {
+  const prev_hash = batches[batch_id]?.[batches[batch_id].length - 1]?.hash || "";
+  const hash = btoa(JSON.stringify(data) + prev_hash);
+  data.stage = stage;
+  data.timestamp = new Date().toLocaleString();
+  data.hash = hash;
+  
+  if (!batches[batch_id]) batches[batch_id] = [];
+  batches[batch_id].push(data);
+  
+  // Save to localStorage
+  localStorage.setItem('batches', JSON.stringify(batches));
+}
+
+document.getElementById('farmerForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const f = this;
+  const batch_id = 'B' + (Object.keys(batches).length + 1).toString().padStart(3, '0');
+  
+  addStage(batch_id, 'Farmer', {
+    farmer: f.farmer_name.value,
+    crop: f.crop_name.value,
+    harvest_date: f.harvest_date.value
+  });
+  
+  alert('✅ Batch ' + batch_id + ' added successfully!');
+  f.reset();
+  updateBatchList();
+});
+
+// Initialize on load
+updateBatchList();
+</script>
+<div style="text-align:right; margin:30px;">
+  <a href="distributor-dashboard.html" class="next-btn">Next →</a>
+</div>
+
+</body>
+</html>

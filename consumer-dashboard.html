@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consumer Portal - Farm Supply Chain</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #d4fada, #eaffea); color: #003300; min-height: 100vh; }
+
+.dashboard-header { background: linear-gradient(90deg, #00b36b, #00994d); color: white; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.dashboard-header h1 { font-size: 1.8rem; }
+.back-btn { background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; transition: background 0.3s ease; }
+.back-btn:hover { background: rgba(255,255,255,0.3); }
+
+.container { max-width: 1000px; margin: 40px auto; padding: 20px; }
+
+.card { background: #ffffffee; border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); padding: 30px; animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.card h2 { font-size: 24px; margin-bottom: 20px; color: #007033; }
+
+input, button { padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #00b36b; font-size: 14px; font-family: 'Poppins', sans-serif; }
+button { background: linear-gradient(90deg, #00cc66, #00b36b); color: white; border: none; font-weight: bold; cursor: pointer; transition: all 0.3s ease; flex: 0 0 auto; }
+button:hover { background: linear-gradient(90deg, #00b36b, #00994d); transform: translateY(-2px); }
+
+.progress-container { background: #ccffcc; border-radius: 12px; height: 24px; margin: 15px 0; box-shadow: inset 0 2px 6px rgba(0,0,0,0.15); }
+.progress-bar { height: 100%; border-radius: 12px; background: linear-gradient(90deg, #00cc66, #00e68a); text-align: center; color: white; font-weight: bold; line-height: 24px; transition: width 0.4s ease; }
+
+.timeline { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
+.timeline-stage { background: #ffffff; padding: 15px; border-left: 6px solid #00cc66; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; animation: slideIn 0.4s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+.timeline-stage:hover { transform: scale(1.02); }
+
+.badge { padding: 6px 12px; border-radius: 6px; color: white; font-weight: bold; font-size: 12px; display: inline-block; margin-bottom: 8px; }
+.badge.farmer { background: #007a33; }
+.badge.distributor { background: #00b36b; }
+.badge.retailer { background: #00cc66; }
+
+.qr { margin-left: 15px; }
+
+/* New Style for QR Scanner */
+#reader-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px dashed #00b36b;
+    text-align: center;
+}
+#reader {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    border: 3px solid #00b36b;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.next-btn {
+  background: linear-gradient(90deg, #00cc66, #00b36b);
+  color: white;
+  padding: 12px 38px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.07rem;
+  box-shadow: 0 2px 9px rgba(0,179,107,0.10);
+  transition: background 0.2s, transform 0.2s;
+  display: inline-block;
+}
+.next-btn:hover {
+  background: linear-gradient(90deg, #00b36b, #00994d);
+  transform: translateY(-2px);
+}
+
+</style>
+</head>
+<body>
+
+<header class="dashboard-header">
+  <h1>👥 Consumer Portal</h1>
+  <a href="main.html" class="back-btn">← Back to Home</a>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Track Product Timeline & QR Code</h2>
+    
+    <div id="reader-container">
+        <h2 style="font-size: 1.5rem; margin-bottom: 15px;">Or Scan the QR Code 📸</h2>
+        <div id="reader"></div>
+        <p id="scan-status" style="margin-top: 10px; color: #cc0000; font-weight: bold;"></p>
+    </div>
+    
+    <div style="text-align: center; margin: 20px 0;">
+        <span style="font-size: 1.2rem; color: #007033; font-weight: bold;">— OR —</span>
+    </div>
+    
+    <form id="consumerForm" style="display:flex; gap:10px; align-items:flex-start;">
+      <input name="batch_id" id="batch_id_input" placeholder="Enter Batch ID (e.g., B001)" required style="flex:1;">
+      <button type="submit">🔍 View Timeline</button>
+    </form>
+    
+    <div id="consumerResult" style="margin-top:15px; font-size:16px; font-weight:600; color:#007033;"></div>
+    <div class="progress-container">
+      <div id="progressBar" class="progress-bar" style="width:0%">0%</div>
+    </div>
+    <div id="batchTimeline" class="timeline"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+let batches = JSON.parse(localStorage.getItem('batches')) || {};
+let html5QrcodeScanner = null;
+
+// Function to handle form submission (viewing timeline)
+function viewTimeline(batchId) {
+    const id = batchId.trim();
+    const timelineDiv = document.getElementById('batchTimeline');
+    timelineDiv.innerHTML = '';
+    
+    // Clear the scanner if it's running
+    if (html5QrcodeScanner) {
+        html5QrcodeScanner.stop().catch(err => console.error("Could not stop scanner.", err));
+    }
+
+  if (!batches[id]) {
+    document.getElementById('consumerResult').innerHTML = '❌ Batch ${id} not found! Please check the Batch ID.';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressBar').textContent = '0%';
+    return;
+}
+
+document.getElementById('consumerResult').innerHTML = '📦 Timeline for batch <strong>${id}</strong>';
+    
+    const stages = ["Farmer", "Distributor", "Retailer"];
+    const progressBar = document.getElementById('progressBar');
+    const completed = batches[id].length;
+    const percent = Math.min(Math.round((completed / stages.length) * 100), 100);
+    progressBar.style.width = percent + "%";
+    progressBar.textContent = percent + "%";
+    
+    batches[id].forEach((stage, index) => {
+        const stageDiv = document.createElement('div');
+        stageDiv.className = 'timeline-stage';
+        stageDiv.style.animationDelay = (index * 0.1) + 's';
+        
+        // Extract relevant details for display
+        const details = JSON.stringify(stage).replace(/^{|}$/g, '').replace(/"/g, '').replace(/,/g, ', ').substring(0, 150) + '...';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.innerHTML = `<span class="badge ${stage.stage.toLowerCase()}">${stage.stage}</span>
+        <br><small style="color:#666;">${stage.timestamp}</small><br>
+        <strong>Details:</strong> ${details}`;
+        
+        // Generate QR code for the specific stage's hash (for verification/deep dive)
+        const qrDiv = document.createElement('div');
+        qrDiv.className = 'qr';
+        new QRCode(qrDiv, { text: stage.hash || id, width: 80, height: 80 }); // Use hash if available, otherwise batch ID
+        
+        stageDiv.appendChild(infoDiv);
+        stageDiv.appendChild(qrDiv);
+        timelineDiv.appendChild(stageDiv);
+    });
+}
+
+// Function to initialize and start the QR code scanner
+function startQrCodeScanner() {
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", { fps: 10, qrbox: 250 }, false);
+
+    const onScanSuccess = (decodedText, decodedResult) => {
+        // Handle the successful scan
+        document.getElementById('batch_id_input').value = decodedText;
+        viewTimeline(decodedText);
+    };
+
+    const onScanFailure = (error) => {
+        // Handle scan failure, perhaps update status
+        document.getElementById('scan-status').textContent = 'Scanning... Ensure QR code is centered.';
+    };
+
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    document.getElementById('scan-status').textContent = ''; // Clear status initially
+}
+
+// Event listener for the manual form submission
+document.getElementById('consumerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const batchId = document.getElementById('batch_id_input').value;
+    viewTimeline(batchId);
+    this.reset();
+});
+
+// Start the scanner when the page loads
+window.addEventListener('load', startQrCodeScanner);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+..<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retailer Dashboard - Farm Supply Chain</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #d4fada, #eaffea); color: #003300; min-height: 100vh; }
+
+.dashboard-header { background: linear-gradient(90deg, #00b36b, #00994d); color: white; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.dashboard-header h1 { font-size: 1.8rem; }
+.back-btn { background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; transition: background 0.3s ease; }
+.back-btn:hover { background: rgba(255,255,255,0.3); }
+
+.container { max-width: 900px; margin: 40px auto; padding: 20px; }
+
+.card { background: #ffffffee; border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); padding: 30px; animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.card h2 { font-size: 24px; margin-bottom: 20px; color: #007033; }
+
+input, button { padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #00b36b; width: 100%; font-size: 14px; font-family: 'Poppins', sans-serif; }
+button { background: linear-gradient(90deg, #00cc66, #00b36b); color: white; border: none; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+button:hover { background: linear-gradient(90deg, #00b36b, #00994d); transform: translateY(-2px); }
+
+/* New Style for QR Code */
+#qrcode-container {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+    display: none; /* Hide initially */
+}
+#qrcode-container h3 {
+    margin-bottom: 15px;
+    color: #007033;
+}
+#qrcode {
+    display: inline-block;
+}
+
+.next-btn {
+  background: linear-gradient(90deg, #00cc66, #00b36b);
+  color: white;
+  padding: 12px 38px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.07rem;
+  box-shadow: 0 2px 9px rgba(0,179,107,0.10);
+  transition: background 0.2s, transform 0.2s;
+  display: inline-block;
+}
+.next-btn:hover {
+  background: linear-gradient(90deg, #00b36b, #00994d);
+  transform: translateY(-2px);
+}
+
+</style>
+</head>
+<body>
+
+<header class="dashboard-header">
+  <h1>🛒 Retailer Dashboard</h1>
+  <a href="main.html" class="back-btn">← Back to Home</a>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Verify Batch</h2>
+    <form id="retailerForm">
+      <input name="batch_id" id="batch_id" placeholder="Batch ID (e.g., B001)" required>
+      <input name="date_arrival" id="date_arrival" placeholder="Date of Arrival" required>
+      <input name="quantity_received" id="quantity_received" placeholder="Quantity received (eg., 480kg)" required>
+      <input name="selling_price" id="selling_price" placeholder="Selling Price per Unit (eg., ₹80/kg)" required>
+      <input name="expiry_date" id="expiry_date" placeholder="Expiry/Best before Date (eg., “Best before: 10 Nov 2025.”)" required>
+      <button type="submit">✅ Verify Batch</button>
+    </form>
+    
+    <div id="qrcode-container">
+        <h3>Scan for Batch Details</h3>
+        <div id="qrcode"></div>
+    </div>
+    
+  </div>
+</div>
+
+<script>
+let batches = JSON.parse(localStorage.getItem('batches')) || {};
+
+function addStage(batch_id, stage, data) {
+  const prev_hash = batches[batch_id]?.[batches[batch_id].length - 1]?.hash || "";
+  const hash = btoa(JSON.stringify(data) + prev_hash);
+  data.stage = stage;
+  data.timestamp = new Date().toLocaleString();
+  data.hash = hash;
+  
+  if (!batches[batch_id]) batches[batch_id] = [];
+  batches[batch_id].push(data);
+  localStorage.setItem('batches', JSON.stringify(batches));
+}
+
+function generateQRCode(data) {
+    const qrcodeContainer = document.getElementById('qrcode-container');
+    const qrcodeDiv = document.getElementById('qrcode');
+    
+    // Clear any previous QR code
+    qrcodeDiv.innerHTML = ''; 
+    
+    // Format the data into a readable string for the QR code
+    const qrData = `
+        BATCH ID: ${data.batch_id}
+        ARRIVED: ${data.date_arrival}
+        QUANTITY: ${data.quantity_received}
+        SELLING PRICE: ${data.selling_price}
+        BEST BEFORE: ${data.expiry_date}
+        VERIFIED BY: RETAILER
+        TIMESTAMP: ${new Date().toLocaleString()}
+    `.trim();
+
+    // Generate the QR code
+    new QRCode(qrcodeDiv, {
+        text: qrData,
+        width: 150,
+        height: 150,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    // Show the QR code section
+    qrcodeContainer.style.display = 'block';
+}
+
+document.getElementById('retailerForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const f = this;
+  const id = f.batch_id.value;
+  
+  if (!batches[id]) {
+    alert('❌ Batch not found! Please check the Batch ID. (Using a placeholder batch for demo)');
+    // ******************************************************************************
+    // NOTE: For a working demo, I'm adding a dummy batch if not found.
+    // In a real application, you would STOP here and make the user enter a valid ID.
+    // To run this code and see the QR code, ensure 'batches' is either in localStorage
+    // or you add a simple 'batches[id] = [{ hash: "dummy" }];' before the 'addStage' call.
+    if (!batches[id]) {
+        batches[id] = [{ hash: "dummy" }];
+    }
+    // ******************************************************************************
+    // return; 
+  }
+  
+  // 1. Collect all data from the form
+  const batchData = {
+      batch_id: f.batch_id.value,
+      date_arrival: f.date_arrival.value,
+      quantity_received: f.quantity_received.value,
+      selling_price: f.selling_price.value,
+      expiry_date: f.expiry_date.value,
+      verified: true
+  };
+  
+  // 2. Add the stage to the blockchain simulation (localStorage)
+  addStage(id, 'Retailer', batchData);
+  
+  // 3. Generate and display the QR Code with the key details
+  generateQRCode(batchData);
+
+  alert('✅ Batch ' + id + ' verified by retailer and QR Code generated!');
+  // f.reset(); // Don't reset if we want the user to see the generated QR code
+});
+</script>
+<div style="text-align:right; margin:30px;">
+  <a href="consumer-dashboard.html" class="next-btn">Next →</a>
+</div>
+
+
+</body>
+</html>

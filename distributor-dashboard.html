@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributor Dashboard - Farm Supply Chain</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #d4fada, #eaffea); color: #003300; min-height: 100vh; }
+
+.dashboard-header { background: linear-gradient(90deg, #00b36b, #00994d); color: white; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.25); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.dashboard-header h1 { font-size: 1.8rem; }
+.back-btn { background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; transition: background 0.3s ease; }
+.back-btn:hover { background: rgba(255,255,255,0.3); }
+
+.container { max-width: 900px; margin: 40px auto; padding: 20px; }
+
+.card { background: #ffffffee; border-radius: 15px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); padding: 30px; animation: fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.card h2 { font-size: 24px; margin-bottom: 20px; color: #007033; }
+
+input, button { padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #00b36b; width: 100%; font-size: 14px; font-family: 'Poppins', sans-serif; }
+button { background: linear-gradient(90deg, #00cc66, #00b36b); color: white; border: none; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+button:hover { background: linear-gradient(90deg, #00b36b, #00994d); transform: translateY(-2px); }
+
+.next-btn {
+  background: linear-gradient(90deg, #00cc66, #00b36b);
+  color: white;
+  padding: 12px 38px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.07rem;
+  box-shadow: 0 2px 9px rgba(0,179,107,0.10);
+  transition: background 0.2s, transform 0.2s;
+  display: inline-block;
+}
+.next-btn:hover {
+  background: linear-gradient(90deg, #00b36b, #00994d);
+  transform: translateY(-2px);
+}
+
+</style>
+</head>
+<body>
+
+<header class="dashboard-header">
+  <h1>🚚 Distributor Dashboard</h1>
+  <a href="main.html" class="back-btn">← Back to Home</a>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Update Batch Status</h2>
+    <form id="distributorForm">
+      <input name="batch_id" placeholder="Batch ID (e.g., B001)" required>
+      <input name="location" placeholder="Current Location (e.g., Mumbai Warehouse)" required>
+      <input name="Destination" placeholder=" Destination (e.g., Belgaum Warehouse)" required>
+      <input name="Estimated Delivery Date / Time" placeholder=" Estimated Delivery Date / Time (e.g., Belgaum Warehouse)" required>
+      <input name="Driver Contact No " placeholder=" Driver Contact No  " required>
+      <input name="Quantity / Weight Being Delivered " placeholder=" Quantity / Weight Being Delivered  " required>
+      
+      <input name="status" placeholder="Status (e.g., In Transit, Delivered)" required>
+      <button type="submit">🚚 Update Batch</button>
+    </form>
+  </div>
+</div>
+
+<script>
+let batches = JSON.parse(localStorage.getItem('batches')) || {};
+
+function addStage(batch_id, stage, data) {
+  const prev_hash = batches[batch_id]?.[batches[batch_id].length - 1]?.hash || "";
+  const hash = btoa(JSON.stringify(data) + prev_hash);
+  data.stage = stage;
+  data.timestamp = new Date().toLocaleString();
+  data.hash = hash;
+  
+  if (!batches[batch_id]) batches[batch_id] = [];
+  batches[batch_id].push(data);
+  localStorage.setItem('batches', JSON.stringify(batches));
+}
+
+document.getElementById('distributorForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const f = this;
+  const id = f.batch_id.value;
+  
+  if (!batches[id]) {
+    alert('❌ Batch not found! Please check the Batch ID.');
+    return;
+  }
+  
+  addStage(id, 'Distributor', {
+    location: f.location.value,
+    status: f.status.value
+  });
+  
+  alert('✅ Batch ' + id + ' updated by distributor!');
+  f.reset();
+});
+</script>
+<div style="text-align:right; margin:30px;">
+  <a href="retailer-dashboard.html" class="next-btn">Next →</a>
+</div>
+
+</body>
+</html>
